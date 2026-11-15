@@ -15,6 +15,15 @@ Each release of TensorQuay Agent, newest first. A fix release changes no capabil
   prints the same three lines for the install's step 1 as `deploy/build-images.sh`: a few minutes in place of a build
   of 20 to 45. Building from source stays as it was.
 
+### Changed
+
+- **The task page's first scripts are 14 KiB lighter (WEB-U-472, WEB-U-473).** The code that draws a turn, the copy
+  it shows, and the validators of answers the page reads later (a workspace, an upload, a task's key uses, a run's
+  changes, a folder's page, the accounts, a desktop's notices) load when they are first needed; a task without a turn
+  never downloads them, and a message box given focus loads them ahead of the first turn. The page's first load is
+  225 KiB gzip of JavaScript, 15 KiB under the 240 KiB line it is held to, where 17.4.1 had 1 KiB of room; nothing on
+  the page changes.
+
 ### Fixed
 
 - **A long name is never cut without a sign (WEB-E2E-124).** A name longer than its space wraps whole, a long word
