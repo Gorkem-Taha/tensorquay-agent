@@ -12,6 +12,12 @@ Each release of TensorQuay Agent, newest first. A fix release changes no capabil
   images and fonts, read-only, for 15 minutes from the last use. The page stays sandboxed with an opaque origin; it
   may load from the internet only what the install's network setting allows, which the browser enforces before a
   request leaves. A built site's own routes answer its page. The pass is forgotten at a restart.
+- **Settings › Internet access lists the sites refused lately, with Allow this site (GW-I-323, WEB-U-474).** The
+  network proxy keeps the last 200 destinations it refused (host, port, why, how often, when last). An administrator
+  sees them under Recently refused; where a rule would open the site, Allow this site opens Add a site with its host and
+  port (or the host's rule with the port added), the same form and audit as any rule. Nothing waits for it: the task
+  has moved on, and its next connection is decided by the list as it is then. A restarted gateway starts the record
+  empty; the log keeps the rest.
 - **Prebuilt images for each release, for amd64 and arm64 (REL-U-013, REL-I-006).** From 18.0, a release tag builds
   the gateway, web app and Minimal, Workstation and Desktop runtimes natively for both architectures (Apple silicon
   included), checks them, and publishes them on the GitHub Container Registry as
