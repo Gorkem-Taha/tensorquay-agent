@@ -1,32 +1,117 @@
 # Gate 10: Agent teams
 
-**State:** **draft, not reached** (21 Oct 2026, for the technical lead). The Evaluation below is the technical lead's
-to write. The release candidate is 16y. In the 16y integration (20 Oct), every row in this gate's
-scope passed. That includes the agents suite on the real stack, 17 of 17 (16j's 12 and the five added since), and
-SEC-046 with its team case.
+**State:** **draft for release 18.0, no verdict yet** (15 Nov 2026). The technical lead writes the Evaluation once the
+third 24 h soak with agent teams in its mix has run (15 to 16 Nov 2026) and its numbers are in this page. Until then
+nothing here is a verdict: the criteria, the evidence that decides each, and what the evidence can't say.
 
-After 16j, a real-world campaign on 16k (17 Oct) gave agent teams goals a person would set. The defects it found,
-and those the live checks on the real model found after, were fixed in 16m to 16x and checked again live on 16o, 16p,
-16q and 16u (below).
+Agent teams shipped in 17.0 (3 Nov 2026) as **experimental and off by default** (`[agent_teams] enabled`, ADR-0034),
+and the Product Owner decided on 12 Nov 2026 that they stay so (PRD §12 item 32): the evaluation of one agent against a
+team on the same budget showed no difference either way (`agent-teams.md` §3). What that means for this gate is set
+out under "What the switch means for the verdict".
 
-**The primary evidence for 16y's team behaviour** (decided on 21 Oct 2026):
-- 16k's real-world team cases;
-- the live checks on 16o and 16p;
-- 16u's live checks L2, L2b and L3.
+The record of the v1.0 candidate (build 16y, 20 to 21 Oct 2026), on which every row then in scope passed, is kept
+below under "The October 2026 record"; the 18.0 evidence comes first.
 
-Since 16u, 16y changes no team code except WEB-U-415 and WEB-U-416, which the integration's E2E-AGENTS-032 covers.
-16y itself is 16x plus TCP keepalive on the gateway's accepted sockets (GW-U-205, GW-I-314). The phase demo on 16j
-(15 Oct) passed and is supporting evidence.
+## The criteria and what decides each (18.0)
+The gate's row in TEST-PLAN §17 names the criteria. Each is decided by a named test or run; the third 24 h soak's
+numbers are the lead's to fill, marked `<!-- soak3: … -->`.
 
-What isn't done yet:
-- **a soak with agent teams in its mix: open.** Every c16 soak so far, 16y's included, has run with agent teams off.
-  Off by default is ADR-0034's install switch (accepted 2 Oct 2026); keeping agent teams off for this release is still
-  the Product Owner's open decision. While they stay off, this doesn't block 16y, but it isn't closed;
-- the evaluation's result: "keep experimental" is the bars' reading and the technical lead's recommendation, and the
-  Product Owner decides (`agent-teams.md` §3);
-- the Evaluation below.
+| Criterion (DEV-PLAN Phase 10; TEST-PLAN §17) | Decided by | 18.0 |
+|---|---|---|
+| Every P0 row on agent teams passes: CORE-U-078; GW-I-214, GW-I-252; RT-I-039; SEC-037, SEC-038, SEC-046 with its team case; WEB-U-228 | the unit, DB and web unit runs of the 18.0 candidate's integration (`check`, `ignored`, vitest), SEC-046's host-keys stack run | <!-- soak3: the candidate's integration summary, counts of unit, DB and vitest; SEC-046 passed/failed --> |
+| Every P1 row on agent teams passes (the §17 row's list: CORE-U-079/080, E2E-AGENTS-021…030 and 033…035, the GW-I, GW-U, LLM-U, PROTO-U, RT-I, SEC, TK-U, TOOL-U rows named there, WEB-E2E-062, the WEB-U rows) | the same integration; the agents suite on the real stack (`demo.py --suite agents`: E2E-AGENTS-020…035, WEB-E2E-062) | <!-- soak3: agents suite N of N, minutes --> |
+| The phase demo: an agent team end to end on the real model, as E2E-AGENTS-020 scripts it | the technical lead's live session on the candidate (supporting evidence since 21 Oct 2026, the team code having changed after the 16j demo); E2E-AGENTS-020 on the fake model in every integration | <!-- soak3: run on 18.0 or not; the record's helper count, tokens, minutes --> |
+| A 24 h soak with agent teams in its mix (open since 21 Oct 2026; closed by SOAK-001 as amended on 13 Nov 2026) | the third 24 h soak, 15 to 16 Nov 2026, `soak.py --hours 24 --teams-every … --desktops-every …` with `soak_mix.py`'s team lane (a lead and two helpers on their own copies, a report from each, `done`, then the lead deleted with its helpers, one team at a time beside the eight slots) and `soak_mix_audit.py` every 5 minutes | see "The third 24 h soak" below |
+| The measurement, not pass or fail: a single agent against a team at the same budget (`agent-teams.md` §2, proposal J) | the three nights of 11 to 13 Oct 2026, judged blind on 14 Oct; nothing since changes the model or the team code's cost in a way the evaluation measures | not shown either way: +0.00 points on night 2 (7 tasks, −0.86 to +0.86), −0.73 on night 3 against night 1 (13 tasks, −2.58 to +0.62); teams formed in 4 of 20 attempts; the bars' reading is keep experimental (§3.1), and the Product Owner so decided on 12 Nov 2026 |
 
-## Scope
+**Rows that touch agent teams but stay out** (unchanged since 21 Oct): GW-U-078 and GW-I-219, each a row about
+something else with a team case among its inputs. **Other evidence, not criteria:** the P2 rows E2E-AGENTS-020 and
+E2E-AGENTS-031/032 and, written for 17.0's candidate and since, E2E-AGENTS-036…039 (a failing lead beside a working
+helper, Stop team with a question open, the waiting notice behind a person's message, a lead stopped before its
+helper's report), GW-I-319 and WEB-U-423…425 (what a stopped lead's strip says), WEB-E2E-024, WEB-U-230 and WEB-U-327.
+
+## The third 24 h soak (15 to 16 Nov 2026)
+The soak's mix (SOAK-001, amended 13 Nov 2026) adds one agent team at a time beside the eight slots, with agent teams
+turned on for the run, on a second scripted model of its own, outside the slots' fault plan. Each team must end `done`
+with both helpers reporting and one end note within 15 minutes, and after its delete give back what it held within 5
+minutes; the mix's audit counts helpers' sandboxes (at most 2), workspace copies, the team log's rows, teams, queued
+team turns and sandbox token reservations (GW-I-252), each 0 before the first team and back at 0 at the end. PRD M5's
+growth rule applies to the one 12 h gateway lifetime (hours 12 to 24).
+
+- **Earlier runs with the mix:** the 24 h run of 13 Nov 2026 ended on the harness's own rule (a Desktop task opened 3 ms
+  into a disk-full window; the rule now allows it on the product's own record of the dropped capture, SOAK-001); the
+  24 h run of 14 Nov 2026 found a product fault outside agent teams (a message whose environment couldn't start was lost
+  under an engine stall; fixed as GW-I-322). Neither is this gate's evidence; both are why the third run is the one
+  that counts.
+- **The third run:** <!-- soak3: dates and hours; candidate commit and images -->
+  - teams started, completed `done`, failed: <!-- soak3: teams started / completed / failed -->
+  - helpers per team, reports per team, end notes: <!-- soak3: 2 / 2 / 1 for every team, or the exceptions -->
+  - faults witnessed beside the lanes (the slots' plan: gateway kills, database stops, sandbox kills, link cuts,
+    engine stalls, disk fills): <!-- soak3: counts by kind -->
+  - the mix's audit at the start, its high water and the end (helper sandboxes, copies, team log rows, teams, queued
+    turns, reservations): <!-- soak3: the result's mix section -->
+  - gateway RSS on the 12 h lifetime (second hour's median against the last hour's; the slope projected to 24 h):
+    <!-- soak3: RSS % and projected % -->
+  - open descriptors other than database connections: <!-- soak3: fds % and projected % -->
+  - database connections against the pool (D1 to D4, with the teams' one listener): <!-- soak3: D1 D2 D3 D4 -->
+  - orphan audit after the drain: <!-- soak3: sandboxes, rows, networks, volumes -->
+- **What it decides:** whether ADR-0034's resources that build up over time (helpers' sandboxes and copies, the team
+  log, wakes, budget reservations) return to zero team after team over 24 hours beside the slots' faults, and whether
+  the gateway's growth stays within M5 with teams running. It says nothing about team quality (the evaluation does
+  that) and runs the one scripted team shape.
+
+## What the switch means for the verdict
+Agent teams are off by default and stay so for 18.0 (PRD §12 item 32). Off leaves no trace (WEB-U-228): a person on a
+default install never meets a team, and nothing in this gate's scope runs. So the verdict is about an install whose
+administrator turns the switch on: the gate asks whether that install gets a feature that works as specified and
+doesn't harm the rest of the product. A gate reached here means "safe to offer as experimental", not "recommended":
+the recommendation stays with the evaluation, which reads keep experimental, and the user guide says so.
+
+## Closed since 21 Oct 2026
+- **The soak with agent teams in its mix**, open at every October soak: SOAK-001's lanes and audit (13 Nov 2026), two
+  runs that ended on other causes, and the third run above.
+- **The evaluation's result** is decided: keep experimental, the Product Owner's decision of 12 Nov 2026.
+- **17.0's release candidate and after:** E2E-AGENTS-036…039, GW-I-319 and WEB-U-423…425 (a stopped lead's strip,
+  the end card's report count, a helper stopped before it started), all P2 evidence; in 18.0, deleting a team's lead
+  with its helpers removes the helpers' own copies and the team's messages (GW-I-108; before, both stayed for good).
+- **Open for c17 on 21 Oct, still open:** the lead's guidance toward `own_copy` for independent parts, and the measure
+  again with three attempts a task. Not a criterion; the evaluation's next step.
+
+## What the evidence can't say (18.0)
+- **One scripted team shape in the soak.** The mix's lead starts two helpers on their own copies and ends `done`; no
+  team on the lead's files, no stop, no budget end, no person's message mid-team runs for 24 hours. Those are each
+  tested once (the agents suite, GW-I rows), not soaked.
+- **The fake model throughout the soak.** The soak measures the gateway and the runtime under a scripted model; what
+  a real model's team does over a day (the 16k campaign's shapes) is not soaked.
+- **The evaluation is indicative** (one attempt per task and side, 15 of 27 tasks, teams formed in 4 of 20 attempts;
+  `agent-teams.md` §3.7). It decides the recommendation and the switch, not the gate.
+- **The phase demo on the real model** was last run on 16j (15 Oct 2026); on the candidate it is the technical lead's
+  session, or E2E-AGENTS-020 on the fake model stands in.
+- **Off by default means untested by most installs.** A fault that only a team provokes reaches the few installs that
+  turned the switch on; the Known limits below say what those administrators take on.
+- **The known limits below** hold for 18.0 as they did for 17.0; none is closed by this release.
+
+## Known limits (18.0)
+- **Off by default.** `[agent_teams] enabled` in `gateway.toml` is off, and off leaves no trace (WEB-U-228).
+  Administrators turn it on per install; agent teams stay experimental (PRD §12 item 32, 12 Nov 2026).
+- **Depth 1.** Helpers never get `start_member`, and a lead can't become a helper of another team (ADR-0034, GW-U-069).
+- **Not on CPU.** On a computer without a suitable GPU each model call takes minutes, and a team multiplies those calls;
+  the user guide's Running without a GPU section says so.
+- **A model has to choose to lead.** With the brief line, a helper was used in 4 of 20 attempts (`agent-teams.md`
+  §3); on an open goal the lead works alone until the task asks for helpers.
+- **Helpers on the lead's files take turns** (ADR-0034 point 6). A lead that gives independent parts `my_files` gets
+  no parallel work.
+- **A team's budget.** A two-helper research team spent the default 2M tokens in 7 minutes on the real model (16k's
+  B9b); out of budget, a team hands back what its helpers had (GW-I-304, GW-I-311).
+- **No gain shown.** The evaluation showed no difference between a team and a single agent either way, on 7 and 13
+  tasks; a team is offered for work a person wants split, not for a better answer.
+
+## The October 2026 record (build 16y, the v1.0 candidate; written 21 Oct 2026)
+On 16y every row then in this gate's scope passed in the integration of 20 Oct 2026, the agents suite 17 of 17 and
+SEC-046 with its team case among them; the 16k campaign (17 Oct) and the live checks on 16o to 16u (18 Oct) are the
+primary evidence for 16y's team behaviour. The sections keep their words of 21 Oct.
+
+### Scope
 The TEST-PLAN §17 Gate 10 row (set on 12 Oct 2026; the rows added since, 21 Oct) holds:
 - every P0 and P1 row on agent teams: those that name ADR-0034, and the agent-team features and the Product Owner's edge
   cases of 7 Oct that don't;
@@ -73,7 +158,7 @@ tests, and each passed in the 16y integration:
   - GW-I-298…301, GW-I-303, GW-I-304, GW-I-306, GW-I-307, GW-I-312;
   - the team rows among WEB-U-387…416.
 
-## The 16y integration (20 Oct 2026, its summary from 20:08 to 23:16 +08:00)
+### The 16y integration (20 Oct 2026, its summary from 20:08 to 23:16 +08:00)
 **Source:** the integration's summary `int-5a59ad1d5-summary.log`, with each step's log in `int-5a59ad1d5-*.log`.
 Failed gates 0, cut 0; one failed step, release-mode performance (below).
 
@@ -102,7 +187,7 @@ Failed gates 0, cut 0; one failed step, release-mode performance (below).
 - **Everything else** passed, including the Desktop suite, the Firecracker suites (107 of 108, the flush above), the
   real-stack browser suites and the gate demos.
 
-## The real-world campaign (16k, 17 Oct 2026)
+### The real-world campaign (16k, 17 Oct 2026)
 The Product Owner asked for real-world end-to-end use: give a team a goal and see whether it works together to
 finish it.
 - **Setup:** a fresh 16k install with agent teams on, the real local model (27B, with images), and a short allow-list
@@ -144,7 +229,7 @@ finish it.
   - in B5 and B7 the lead named a profile that doesn't exist, then retried without it;
   - in B9b the lead ignored the 80 % notice and waited, instead of asking the helpers for what they had.
 
-## The live checks on the real model (16o to 16x, 18 and 19 Oct 2026)
+### The live checks on the real model (16o to 16x, 18 and 19 Oct 2026)
 Each fix was checked on a fresh install of its candidate with the real model. Every verdict rests on the run's own
 records or the screen, never on the model's words.
 
@@ -166,7 +251,7 @@ none of them Done; it passed again on 16y.
 **Not exercised live:** the reminder to a lead that ends its turn without `done`. The leads in 16o's and 16p's runs
 never needed one. E2E-AGENTS-032 covers it on the real stack.
 
-## The phase demo (16j, 15 Oct 2026, the technical lead's live session): supporting evidence
+### The phase demo (16j, 15 Oct 2026, the technical lead's live session): supporting evidence
 **PASS** on the real model, as E2E-AGENTS-020 scripts it:
 - a lead started four helpers, each with its own brief;
 - each helper ran its own tests and reported, and the lead wrote the package's last file;
@@ -189,7 +274,7 @@ The team code changed after 16j, so the demo is supporting evidence only (decide
 evidence for 16y is listed at the top of this page. On those runs, real-model teams ended by `done` on 16k (B1, B3,
 B4, B9c, B10b) and in the live checks on 16o and 16p, and E2E-AGENTS-020 passed on 16y.
 
-## Earlier integrations (16d to 16j, 12 to 14 Oct 2026)
+### Earlier integrations (16d to 16j, 12 to 14 Oct 2026)
 In each, every row then in this gate's scope passed:
 
 | Candidate | Dev | Agents suite | SEC-046 team case | Notes |
@@ -206,7 +291,7 @@ the real model. Its three findings were fixed before 16d.
 1280 and 390, light and dark, in English and Simplified Chinese. All were ok, and none of its findings was in agent
 teams.
 
-## What's still open
+### What's still open
 1. **The soak with agent teams in its mix.** Every c16 soak has run with agent teams off: 16e's (passed, 12 to 13 Oct),
    16j's (passed, 14 to 15 Oct), 16u's (stopped at 9 h 33 min on 18 Oct, once 16u could no longer
    be the candidate), 16x's (passed by the growth rule, with an idle-connection leak found and fixed as 16y) and 16y's
@@ -239,7 +324,7 @@ teams.
   phases that a busy host disturbed or that didn't run (PERF-011's run failed on the harness) will run on 16y in a
   quiet session after its soak (Thursday 22 Oct, about 00:30 to 05:30).
 
-## Known limits (v1.1)
+### Known limits (v1.1)
 - **Off by default.** `[agent_teams] enabled` in `gateway.toml` is off, and off leaves no trace (WEB-U-228).
   Administrators turn it on per install.
 - **Depth 1.** Helpers never get `start_member`, and a lead can't become a helper of another team (ADR-0034, GW-U-069).
@@ -255,5 +340,6 @@ teams.
 - **A team's budget.** On 16k a two-helper research team spent the default 2M tokens in 7 minutes (B9b), and the same
   goal finished in 3.73M (B9c). Out of budget, a team now hands back what its helpers had (GW-I-304, GW-I-311).
 
+
 ## Evaluation (the technical lead)
-*Left to the technical lead.*
+*Left to the technical lead, after the third 24 h soak.*

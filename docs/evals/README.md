@@ -19,8 +19,8 @@ they use, and the commit and image IDs they quote, are explained in [TEST-PLAN](
 | 7 | Channels | [gate-7.md](gate-7.md) | reached on c15 (2026-10-08) |
 | 8 | Firecracker | [gate-8.md](gate-8.md) | reached on 15b (2026-10-11); PERF-012's microVM half (Gate 9's row) waived by the product owner; the microVM host-key test is a known gap |
 | 9 | PRD metrics M1–M8 | [gate-9.md](gate-9.md) | reached on 15b (2026-10-11), with the product owner's waiver of PERF-012's microVM half |
-| 10 | Agent teams | [gate-10.md](gate-10.md) | **draft** (2026-10-12): every row passed in 16d, the agents suite 12 of 12; open: the technical lead's live session, SEC-046's agent-team case, the evaluation, the soak |
-| 11 | Computer use | [gate-11.md](gate-11.md) | **draft** (2026-10-21): every computer-use row passed in 16y's integration, none failed since 16u; 16k's real-world Desktop cases' defects fixed and passed live on 16o and 16x; open: a soak with Desktop tasks, the grounding evaluation on 16y's capture |
+| 10 | Agent teams | [gate-10.md](gate-10.md) | **draft for 18.0** (2026-11-15): the criteria and what decides each; agent teams experimental and off by default (PRD §12 item 32, 12 Nov 2026) and what that means for the verdict; the third 24 h soak with teams in its mix (15 to 16 Nov) to be filled; the evaluation read keep experimental; the October record kept below |
+| 11 | Computer use | [gate-11.md](gate-11.md) | **draft for 18.0** (2026-11-15): the criteria and what decides each; the small items since 21 Oct closed or recorded (Caps Lock, Ctrl+A, the reader's frame, the paste-in limit, a changed cap's reach); the grounding evaluation of 14 Nov (coordinates stay off); the third 24 h soak with Desktop tasks in its mix (15 to 16 Nov) to be filled; the October record kept below |
 
 Other measurements, kept current before each `main` update:
 

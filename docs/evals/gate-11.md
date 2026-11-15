@@ -1,32 +1,130 @@
 # Gate 11: Computer use
 
-**State:** **draft, not reached** (21 Oct 2026, for the technical lead). The Evaluation below is the technical lead's
-to write. The release candidate is 16y. In the 16y integration (20 Oct), every row in this gate's
-scope passed, among them the sandbox's Desktop tests (SEC-059's sign-in by hand included), the Desktop suite's 7 tests
-and the 18 rows added on 21 Oct. No computer-use test has failed in an integration since 16u.
+**State:** **draft for release 18.0, no verdict yet** (15 Nov 2026). The technical lead writes the Evaluation once the
+third 24 h soak with Desktop tasks in its mix has run (15 to 16 Nov 2026) and its numbers are in this page. Until then
+nothing here is a verdict: the criteria, the evidence that decides each, and what the evidence can't say.
 
-After 16j, a real-world campaign on 16k (17 Oct) gave Desktop tasks goals a person would set. The defects it found
-were fixed in 16m to 16p and checked again live on the real model on 16o and 16x (below).
+Computer use shipped in 17.0 (3 Nov 2026) and is on by default where the install has the Desktop image. Since the
+October draft the small items the gate carried have been closed or recorded (below): a changed cap's reach, a key
+sent within milliseconds of a click, Ctrl+A under Take over, Caps Lock, the reader's frame on the current image, the
+paste-in and double-click limit, and the grounding evaluation measured again on 14 Nov 2026.
 
-**The primary evidence for 16y's computer use:**
-- the 16y integration;
-- 16k's real-world Desktop cases;
-- the live checks on 16o (the campaign's fixes), on 16u (L1: 16s's reset-ready fix) and on 16x (G1, L4, L1, W8, V1 and
-  W9: the zbus-6 reader, the sign-out readiness fix, and the campaign's fixes again as regressions).
+The record of the v1.0 candidate (build 16y, 20 to 21 Oct 2026), on which every row then in scope passed, is kept
+below under "The October 2026 record"; the 18.0 evidence comes first.
 
-16y itself is 16x plus TCP keepalive on the gateway's accepted sockets (GW-U-205, GW-I-314). It applies to every
-accepted socket, the Screen panel's viewer and the Desktop sandboxes' connections among them, but it changes behaviour
-only for an idle connection whose peer is gone, which no computer-use test or live check relies on. The phase demo on
-16e (13 Oct), with its last step on 16i (14 Oct), is supporting evidence.
+## The criteria and what decides each (18.0)
+The gate's row in TEST-PLAN §17 names the criteria. Each is decided by a named test or run; the third 24 h soak's
+numbers are the lead's to fill, marked `<!-- soak3: … -->`.
 
-What isn't done yet:
-- **a soak with Desktop tasks in its mix: open.** No c16 soak has had one (16e, 16j, 16u, 16x and 16y's). This
-  doesn't block 16y, but it isn't closed;
-- the grounding evaluation on 16y's own capture (below): the targets stand, but the tool's words and the Desktop's
-  root window changed after 16i;
-- the Evaluation below.
+| Criterion (DEV-PLAN Phase 11; TEST-PLAN §17) | Decided by | 18.0 |
+|---|---|---|
+| Every P0 row passes: GW-I-159, GW-I-218, GW-I-223, GW-I-313; GW-U-147, GW-U-150/151, GW-U-203, GW-U-204; RT-I-054…057; SBX-C-020 (Docker; the microVM's refusal), SBX-C-022; SEC-001 in a Desktop sandbox, SEC-005's screen socket, SEC-057…059; TOOL-U-057, TOOL-U-062 | the candidate's integration: the sandbox's and the runtime's Docker lanes (SEC-059's sign-in by hand, RT-I-046/047 live, SBX-C-022, SEC-057/058), the unit and DB runs | <!-- soak3: the candidate's integration summary: sandbox lane N of N, runtime lane N of N, unit, DB --> |
+| Every P1 row passes (the §17 row's list: CORE-U-081…083, the GW-I, GW-U, LLM-U, PROTO-U, RT-I and TOOL-U rows named there, WEB-E2E-067, WEB-E2E-071…074, WEB-U-306, WEB-U-329, WEB-U-377) | the same integration; the Desktop suite on the real stack (`demo.py --suite desktop`: WEB-E2E-071…075, 077, 082); WEB-E2E-067 in the settings suite; `egress.desktop_live`'s tool, record, sign-in and reap cases (RT-I-046/047 live, slice 3's record, SEC-059's stack half, SBX-C-022) | <!-- soak3: Desktop suite N of N; desktop_live cases passed --> |
+| The phase demo: a Desktop task watched, taken over and handed back, on the real model | the technical lead's live session on the candidate (supporting evidence since 21 Oct 2026); on the fake model, WEB-E2E-071/072 and the sign-in case stand in | <!-- soak3: run on 18.0 or not --> |
+| A 24 h soak with Desktop tasks in its mix (open since 21 Oct 2026; closed by SOAK-001 as amended on 13 Nov 2026) | the third 24 h soak, 15 to 16 Nov 2026, `soak_mix.py`'s Desktop lane (a Desktop task that types an address, waits and observes, on the Desktop image under test pinned by ID, then deleted; one at a time beside the slots) and `soak_mix_audit.py` every 5 minutes | see "The third 24 h soak" below |
+| The measurement, not pass or fail: the grounding evaluation (`computer-grounding.md`), which decides `pixel_grounding` per route (ADR-0039 §2) | measured on 14 Nov 2026 on a capture of the current Desktop image, after the reader's frame fix (TOOL-U-142) | by ref 200/200, by mark 199/200, by coordinates 41/200 against a bar of 189: `pixel_grounding` stays off on the local route, the same answer as 12 and 15 Oct |
 
-## Scope
+**Other evidence, not criteria** (P2, as in October): WEB-E2E-037, WEB-E2E-075, WEB-E2E-077, WEB-E2E-082; the
+WEB-U rows on the Screen panel; TOOL-U-034's one computer case; the rows added since 17.0 for the Desktop (TOOL-U-138,
+TOOL-U-140, TOOL-U-141, TOOL-U-142, RT-I-058's probe, RT-I-059's keys check), each a fix's own test.
+
+## The third 24 h soak (15 to 16 Nov 2026)
+The soak's mix (SOAK-001, amended 13 Nov 2026) adds one Desktop task at a time beside the eight slots, on the Desktop
+image under test pinned by ID, outside the slots' fault plan. Each must complete with its screenshots kept within 15
+minutes (or, inside a disk-full fault's window, on the product's own record of a dropped capture) and after its delete
+give back what it held within 5 minutes; the mix's audit counts desktops in use against `desktop.max_sessions`, their
+processes, browser profile folders and screenshot files, each 0 before the first Desktop task and back at 0 at the
+end (ADR-0039 §10's resources, the gap the October draft named).
+
+- **Earlier runs with the mix:** the 24 h run of 13 Nov 2026 ended on the harness's own rule (a Desktop task opened 3 ms
+  into a disk-full window and kept no pictures; the rule now allows it on the product's record of the dropped capture);
+  the 24 h run of 14 Nov 2026 found a product fault outside computer use (GW-I-322). Neither is this gate's evidence.
+- **The third run:** <!-- soak3: dates and hours; candidate commit; the Desktop image's ID -->
+  - Desktop tasks started, completed with pictures, failed: <!-- soak3: started / completed / failed -->
+  - tasks inside a disk-full window and how each ended: <!-- soak3: count and the record -->
+  - faults witnessed beside the lanes: <!-- soak3: counts by kind -->
+  - the mix's audit at the start, its high water and the end (desktops in use, processes, profile folders, screenshot
+    files): <!-- soak3: the result's mix section -->
+  - gateway RSS on the 12 h lifetime: <!-- soak3: RSS % and projected % -->
+  - open descriptors other than database connections: <!-- soak3: fds % and projected % -->
+  - database connections against the pool (D1 to D4): <!-- soak3: D1 D2 D3 D4 -->
+  - orphan audit after the drain: <!-- soak3: sandboxes, rows, networks, volumes -->
+- **What it decides:** whether a desktop's processes, its profile and its screenshots are given back task after task
+  over 24 hours beside the slots' faults, and whether the gateway's growth stays within M5 with desktops running. It
+  says nothing about what a model does on a desktop (the campaign and the live checks do), and runs one scripted
+  shape with no Take over.
+
+## Closed or recorded since 21 Oct 2026
+- **The soak with Desktop tasks in its mix**, the October draft's open point 1: SOAK-001's Desktop lane and audit
+  (13 Nov 2026), and the third run above.
+- **The grounding evaluation on a current capture** (open point 2): measured 14 Nov 2026, the same answer (above).
+- **A key sent within a few ms of a click** (open point 3): recorded as a known limit on 14 Nov 2026. **Ctrl+A under
+  Take over:** measured on the x11vnc side on 14 Nov 2026 (ctrl with the keysym `a` arrives as ctrl+a; ctrl with the
+  upper-case keysym arrives as ctrl+shift+A by x11vnc's modifier tweak), and checked by the owner on a MacBook on 15
+  Nov 2026: Ctrl+A worked. **Caps Lock:** the same check found Caps Lock letters typed lower case (the viewer's Shift
+  and the desktop's own Caps Lock cancelled); fixed in 18.0 with the init's `-skip_lockkeys`, red then green on the
+  image's own keys check (RT-I-059: a, A, A, B, ctrl+A, `:` and `;` as sent); `-nomodtweak` was measured and
+  refused, as it turned `:` into `;`.
+- **A changed Desktop cap reaches a running desktop at its next link-up** (open point 4): recorded as a known limit
+  (14 Nov 2026; the Limits page says so per limit, GW-U-146).
+- **A screenshot refusal run together with the elision placeholder** (open point 5): closed 14 Nov 2026, fixed before
+  17.0; CORE-U-081 asserts the newline.
+- **The reader's frame on the current image:** the menu bar and tool bar at the top of a managed window had no boxes
+  since 17.1 (xdotool's geometry 20 px low under the desktop's window manager); fixed test-first (TOOL-U-142) on 14 Nov
+  2026, and RT-I-047's menu cases and the grounding capture run again on the fixed image.
+- **The paste-in and double-click limit** (17.4.1's known limit): not reproduced on 14 Nov 2026 on the current image
+  (30 of 30 double-clicks after a paste in); RT-I-058 closed as not reproduced, its probe kept as the guard.
+- **Since 17.0, each with its test:** applications opened from a Desktop session's shell reach the display
+  (TOOL-U-141); a stalled accessibility tree never holds the screen (TOOL-U-138); typed line breaks and tabs are keys
+  (TOOL-U-140).
+- **In review for 18.0, not yet on main:** a desktop sign-in kept for the whole task (PRD §12 item 24, ADR-0039 §6
+  amended for 18.0), with its unit, integration and web tests and a live-stack case; its rows join this gate's
+  evidence when it lands.
+
+## What the evidence can't say (18.0)
+- **One scripted Desktop shape in the soak:** keys, typing, a wait and `observe`, no Take over, no sign-in, no
+  clicks by ref, on the fake model. The campaign's and the live checks' shapes are each run once, not soaked.
+- **One model measured for grounding.** `pixel_grounding` is decided for the local route only (Qwen3.8 27B); another
+  route needs its own run of `computer-grounding.md` before coordinates are offered.
+- **The phase demo on the real model** was last run on 16e and 16i (13 and 14 Oct 2026); on the candidate it is the
+  technical lead's session, or the fake-model suites stand in.
+- **The known limits below** hold for 18.0; the paste-in and double-click limit of 17.4.1 is not among them, not
+  reproduced on the current image (RT-I-058).
+- **The Caps Lock fix is checked on the image's own keys check and by one owner's keyboard** (a MacBook); other
+  viewers' layouts are covered by the check's `:` and `;` case only.
+
+## Known limits (18.0)
+- **Docker only.** The microVM's rootfs has no Desktop, so the microVM refuses a desktop sandbox at its spec check,
+  naming `desktop` (SBX-C-020's microVM half; ADR-0039 §11).
+- **No `pixel_grounding` on the local route.** Qwen3.8 27B clicks by ref and mark; by coordinates it hit 41/200 on 14
+  Nov 2026 against a bar of 189 (`computer-grounding.md` §6), so the coordinate forms aren't offered on that route, and
+  what has no element (canvas content, spots in an image, applications without accessibility information) can be
+  reached only by keys.
+- **About 9 s more before a Desktop starts.** The init holds the runtime until x11vnc's selection window appears
+  (ADR-0039 §6); if the init's loop restarts x11vnc, a paste in its first seconds is lost.
+- **What the reaper leaves running on a desktop** (ADR-0039 §10): a shell orphan stays only if it holds a socket
+  connected to the display; a process the agent backgrounds that never opens a window is reaped, as on any sandbox.
+- **The computer tool's `xdotool` is reachable by its full path** from the shell (`/usr/libexec/tqa/xdotool`), by
+  design: off the PATH so the model isn't steered to it, not a security boundary.
+- **A desktop that may hold a sign-in doesn't give way** to a waiting Desktop task: one taken over since its last
+  reset, or whose profile isn't known to be empty, keeps its place until its idle limit (GW-I-305, GW-I-308,
+  GW-U-200).
+- **Under Take over, a key sent within a few ms of a click can be lost** while the desktop's browser takes the focus
+  (16x's unpaced L4: 18 of 20 ctrl+L landed). Type at a person's pace, or click once more and send the key again; the
+  agent's own actions wait for the screen to settle.
+- **A changed Desktop cap reaches a running desktop only at its next link-up.** The caps go with the link's session
+  set-up; the Limits page says so per limit (GW-U-146). Stop the task and start it again for the new cap.
+- **Caps Lock under Take over is checked on one keyboard.** The fix (RT-I-059) is proven by the image's own keys check
+  and the owner's MacBook; a viewer whose layout sends other shifted keysyms is covered by the check's `:` and `;` case
+  only.
+
+## The October 2026 record (build 16y, the v1.0 candidate; written 21 Oct 2026)
+On 16y every row then in this gate's scope passed in the integration of 20 Oct 2026, the sandbox's Desktop tests
+(SEC-059's sign-in by hand included) and the Desktop suite's 7 among them; the 16k campaign (17 Oct) and the live
+checks on 16o to 16x (18 and 19 Oct) are the primary evidence for 16y's computer use. The sections keep their words of
+21 Oct, with the "What's still open" table's closures of 14 Nov 2026.
+
+### Scope
 The TEST-PLAN §17 Gate 11 row (set on 12 Oct 2026; the rows added since, 21 Oct) holds every P0 and P1
 row that names Phase 11 or ADR-0039, plus WEB-E2E-067; the phase demo; and the grounding evaluation as the gate's
 measurement. Retired rows (TOOL-U-046, WEB-E2E-076, WEB-U-240) are left out.
@@ -80,7 +178,7 @@ criterion: it is every strict tool's rule for null optional arguments, and only 
 tool's (16k's null-word ref). ADR-0039's security review maps each threat T1…T15 to a test; the P0 rows above carry
 them.
 
-## The 16y integration (20 Oct 2026, its summary from 20:08 to 23:16 +08:00)
+### The 16y integration (20 Oct 2026, its summary from 20:08 to 23:16 +08:00)
 **Source:** the integration's summary `int-5a59ad1d5-summary.log`, with each step's log in `int-5a59ad1d5-*.log`.
 Failed gates 0, cut 0; one failed step, release-mode performance, outside this gate.
 
@@ -104,7 +202,7 @@ Failed gates 0, cut 0; one failed step, release-mode performance, outside this g
 - **Everything else** that failed is outside this gate: PERF-002 in release mode and the microVM's workspace flush
   (`perf_013`), both performance tests in code 16y doesn't change.
 
-## The real-world campaign (16k, 17 Oct 2026)
+### The real-world campaign (16k, 17 Oct 2026)
 The Product Owner asked for real-world end-to-end use: give the Desktop a task a person would set and see whether it
 finishes it.
 - **Setup:** a fresh 16k install, the real local model (Qwen3.8 27B, with images), the Desktop at 2
@@ -150,7 +248,7 @@ finishes it.
   sign-in "cached credentials"; A5, A7, A10 and A11 used invented or stale refs before falling back; A8 gave 984 ft
   for 330 m.
 
-## The live checks on the real model (16o and 16u to 16x, 18 and 19 Oct 2026)
+### The live checks on the real model (16o and 16u to 16x, 18 and 19 Oct 2026)
 Each fix was checked on a fresh install of its candidate with the real model (Qwen3.8 27B, with images). Every verdict
 rests on the tool's own evidence, the runtime's log or the screen, never on the model's words.
 
@@ -175,7 +273,7 @@ rests on the tool's own evidence, the runtime's log or the screen, never on the 
 - **16v and 16w** were checked by their integrations and 16x's live check: 16x is 16w plus one web fix for agent teams
   (WEB-U-416).
 
-## Since 16u: the zbus-6 reader and the sign-out readiness fix
+### Since 16u: the zbus-6 reader and the sign-out readiness fix
 - **The accessibility reader on zbus 6** (16v, merge `96d1f6d26`; TOOL-U-067, TOOL-U-068). The reader now uses our own
   zbus 6 proxies, without the `atspi` crate or zbus 5's three unmaintained crates (the Product Owner's decision:
   replaced, not ignored). The bar was that nothing a model or a person sees changes: AT-SPI's replies are decoded as the
@@ -193,7 +291,7 @@ rests on the tool's own evidence, the runtime's log or the screen, never on the 
   This closes the second door into 16r's SEC-059 failure; 16s's reset-ready fix (RT-I-055, GW-U-203, GW-I-313) closed
   the first, a run's end. Live: L4 and L1 on 16x (above).
 
-## Earlier integrations (16d to 16u, 12 to 18 Oct 2026)
+### Earlier integrations (16d to 16u, 12 to 18 Oct 2026)
 **Source:** each integration's summary, `int-<commit>-summary.log`, with each step's log in `int-<commit>-*.log`.
 
 | Candidate | Dev | Computer-use tests that failed | Since |
@@ -217,7 +315,7 @@ rests on the tool's own evidence, the runtime's log or the screen, never on the 
   failure was a sign-in by hand that never took, so it failed safe.
 - **The Desktop suite** passed 7 of 7 in every integration that ran it from 16g to 16y, but 16n's (6 of 7).
 
-## The phase demo: the technical lead's sessions on 16e and 16i (13 and 14 Oct 2026): supporting evidence
+### The phase demo: the technical lead's sessions on 16e and 16i (13 and 14 Oct 2026): supporting evidence
 On a fresh 16e install, with the local model (Qwen3.8 27B) as its vision route. Item names are the c16 feature
 checklist's.
 
@@ -248,7 +346,7 @@ listed at the top of this page.
 and dark. Its P2s are fixed and its P3s merged. One link can't be taken: a member has no Screen toggle on the
 administrator's Desktop task, which now reads as gone rather than a generic error.
 
-## The grounding evaluation (12 and 15 Oct 2026)
+### The grounding evaluation (12 and 15 Oct 2026)
 Two runs, on the same 200 targets and the same model (Qwen3.8 27B), at the local route's settings
 (`computer-grounding.md` §6):
 
@@ -265,7 +363,7 @@ snapshot byte-identical (TOOL-U-067). But the computer tool's words changed: bot
 web address (TOOL-U-061), and the evaluation sends the tool's own spec from the capture. The Desktop's root window is
 also white since 16n (SBX-C-024). A rerun on a 16y capture would measure both; it hasn't been run.
 
-## What's still open
+### What's still open
 | # | What | When |
 |---|---|---|
 | 1 | **A soak with Desktop tasks.** The soak's mix (`deploy/tests/soak*.py`) has no Desktop task, and its launcher pins no Desktop image, so no c16 soak (16e's and 16j's, passed; 16u's, stopped at 9 h 33 min; 16x's, passed; 16y's, running) says anything about ADR-0039 §10's resources: a desktop's processes, its profile, its screenshots, `desktop.max_sessions`. Needed: Desktop tasks in the mix, a Desktop image pinned, and the audit counting those resources. A known gap for v1.1, reported to the owner. | c17 |
@@ -274,7 +372,7 @@ also white since 16n (SBX-C-024). A rerun on a 16y capture would measure both; i
 | 4 | **A changed Desktop cap reaches a running desktop** only at its next link-up (the caps go with the link's set-up). The page's words say so since 16f. | recorded as a known limit (below, 14 Nov 2026) |
 | 5 | **A screenshot refusal** reaches the model with the refusal and the elision placeholder run together (the 16e session, P3). | closed 14 Nov 2026: fixed before 17.0, the placeholder starts with a newline (`tqa-core/src/runner/model/screenshots.rs`); CORE-U-081 now asserts the newline |
 
-## Found while rerunning the suites for the gate (14 Nov 2026)
+### Found while rerunning the suites for the gate (14 Nov 2026)
 - **RT-I-047's menu cases and the grounding capture failed on the current Desktop image** ("menu File has no box")
   while the 30 October probe image passed with identical Debian packages. Cause: 17.1's rule that drops a box
   outside the focused window's frame (TOOL-U-139) took the frame from xdotool's `getwindowgeometry`, which under the
@@ -283,7 +381,7 @@ also white since 16n (SBX-C-024). A rerun on a 16y capture would measure both; i
   box. Fixed test-first (TOOL-U-142: the frame from xwininfo's absolute client origin); the menu cases and the
   capture run again on the fixed image.
 
-## Known limits (v1.1)
+### Known limits (v1.1)
 - **Docker only.** The microVM's rootfs has no Desktop yet, so the microVM refuses a desktop sandbox at its spec check,
   naming `desktop` (SBX-C-020's microVM half tests the refusal; ADR-0039 §11). The Desktop in the microVM is later work.
 - **No `pixel_grounding` on the local route.** Qwen3.8 27B clicks by ref and mark; by coordinates it hit 46/200 on 12
@@ -328,5 +426,6 @@ also white since 16n (SBX-C-024). A rerun on a 16y capture would measure both; i
   Limits page says so per limit ("a desktop already running keeps the cap it started with", GW-U-146). The way
   around: stop the task and start it again; the new cap applies from that start (recorded 14 Nov 2026).
 
+
 ## Evaluation (the technical lead)
-*Left to the technical lead.*
+*Left to the technical lead, after the third 24 h soak.*
