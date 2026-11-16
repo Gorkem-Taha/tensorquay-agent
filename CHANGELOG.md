@@ -18,6 +18,18 @@ Each release of TensorQuay Agent, newest first. A fix release changes no capabil
   port (or the host's rule with the port added), the same form and audit as any rule. Nothing waits for it: the task
   has moved on, and its next connection is decided by the list as it is then. A restarted gateway starts the record
   empty; the log keeps the rest.
+- **The agent reads PDFs (PRD item 30; ADR-0040; TOOL-U-145, PDF-U-001, PDF-U-002, CORE-U-092).** `read_file` on a PDF answers
+  its text page by page, with page numbers, for every model; on a model that reads pictures, the pages it just read are
+  shown as pictures too. The reader is built into the product (oxidize-pdf for the text, hayro for the pictures, both
+  pure Rust, pinned exactly), runs inside the task's sandbox, and is capped on file size, pages and text. Before, a PDF
+  read as "[binary file]" and the agent had to convert it with a shell tool first.
+- **A desktop sign-in can be kept for the whole task (ADR-0039 §6, amended; PRD item 24; PROTO-U-045, RT-I-060,
+  GW-I-324, WEB-U-475).** On the Screen panel's ⋯ menu, "Keep the sign-in for this task" keeps what you signed into
+  during a Take over across the agent's runs, until you turn it off, clear the browser's sign-ins, delete the task, or
+  the desktop reaches the installation's time limit; the desktop keeps running meanwhile (it is no longer retired for
+  being idle while the switch is on). Each change is noted in the transcript with who made it, and the panel says when
+  it ends. Off, as before and by default, every run
+  starts signed out. Protocol revision 15 carries it to the runtime; an older runtime keeps the old behaviour.
 - **Prebuilt images for each release, for amd64 and arm64 (REL-U-013, REL-I-006).** From 18.0, a release tag builds
   the gateway, web app and Minimal, Workstation and Desktop runtimes natively for both architectures (Apple silicon
   included), checks them, and publishes them on the GitHub Container Registry as
@@ -37,6 +49,25 @@ Each release of TensorQuay Agent, newest first. A fix release changes no capabil
 
 ### Fixed
 
+- **The Screen panel's picture no longer shows a dark box before the desktop's first frame (WEB-U-477).** For about a
+  second after the panel connects to the desktop (as when a task's page opens), the picture was the screen client's
+  own dark backdrop, not the desktop, whose bare root is white by design; it now shows the panel's surface until the
+  first frame arrives.
+- **Clear the browser's sign-ins stays offered while a task keeps its sign-in (WEB-U-476).** With the switch on, a run's
+  end keeps the desktop browser's sign-in, but the Screen panel's menu said "The browser is already signed out: each run
+  ends that way" and refused the clear once a run had ended after the Take over. The panel now reads the switch's own
+  notices: a sign-in may remain past a run's end while the task kept it at that end, and the switch turned off ends it.
+- **A desktop browser that died is started again (RT-I-061).** The runtime kept the session's browser once started and
+  never looked at it again: after a crash, a kill or an out-of-memory end, the next run sent its keys to no window.
+  Each run's start and each reset now see that the browser's process has exited and launch it again, as ADR-0039
+  section 6 says. The launch reads only the new browser's port file: a killed browser leaves its own behind, and
+  reading it first made the relaunch fail at once (TOOL-U-043, WEB-E2E-125). Before, in 17.4 a run that started after
+  the browser died had none until its end started one; with a kept sign-in (new in 18.0) no run's end did, so the
+  browser stayed gone.
+- **A task deleted while the container engine fails keeps nothing behind (GW-I-325).** If the engine refused the
+  sandbox's removal at the delete and again on the failure path, nothing tried again until the gateway restarted, so
+  the deleted task's sandbox, screenshots and browser profile stayed. The removal is now retried in the background,
+  and the task's files go once it succeeds. Found by the 24-hour soak.
 - **A long name is never cut without a sign (WEB-E2E-124).** A name longer than its space wraps whole, a long word
   broken anywhere: a dialog's title, a channel's name, members, posts and task board. Where a row is one line by
   design (a channel's heading, a file's row in the Files panel, a picker's choice), the name ends in an ellipsis and
@@ -91,6 +122,9 @@ Each release of TensorQuay Agent, newest first. A fix release changes no capabil
 
 ### Known limits
 
+- **A browser that dies while no run is going stays gone until the next run starts or the next reset (RT-I-061).** A
+  Take over in between finds the desktop without the runtime's browser; a message to the task starts a run, which
+  starts it again.
 - **A changed Desktop limit applies to desktops that start after the change.** The screenshot and action caps go to
   a desktop when its task's environment starts, and a desktop already running keeps the caps it started with, as the
   Limits page says beside each limit. To apply a new cap to a running task, stop the task and start it again.

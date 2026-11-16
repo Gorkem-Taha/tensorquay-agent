@@ -3,7 +3,7 @@ import struct
 import unittest
 import zlib
 
-from egress import desktop_live
+from egress import desktop_kept, desktop_live
 
 FIELDS = {"action", "ref", "text", "keys", "ms", "direction", "amount"}
 
@@ -79,6 +79,68 @@ class ScenarioTests(unittest.TestCase):
 
     def test_the_sign_in_case_runs_whoami_after_the_watched_run(self):
         self.assertEqual(desktop_live.ORDER["sign-in"], ["watched"] + ["whoami"] * 6)
+
+    def test_the_kept_case_runs_nine_times_over_two_tasks_on_one_script(self):
+        """WEB-E2E-125: six runs on the first task (whoami before and after the sign-in and after the pause, the run
+        that kills the browser, whoami after the restart and after the switch went off) and three on the second
+        (before, after the sign-in, after Sign out everywhere), both tasks on the one six-run script their shared
+        phrase picks: the second task's three whoami runs are the script's first three."""
+        self.assertEqual(desktop_live.ORDER["kept"], ["whoami"] * 3 + ["kill"] + ["whoami"] * 5)
+        self.assertEqual(desktop_live.CONVERSATIONS["kept"],
+                         [("Do the whoami steps", ["whoami"] * 3 + ["kill"] + ["whoami"] * 2)])
+        self.assertEqual(desktop_live.DEADLINE_SECONDS["kept"], 1800)
+        # The idle limit is short, and the pause is three of them; the cookie flush wait covers Chromium's batch.
+        self.assertEqual(desktop_kept.KEPT_IDLE_SECONDS, 20)
+        self.assertGreater(desktop_kept.COOKIE_FLUSH_SECONDS, 30)
+
+    def test_the_kill_run_ends_the_browser_inside_the_run_and_says_so(self):
+        """The browser dies while a run holds the desktop (the runtime sees no Take over, so a death while idle is only
+        found at the next run's start or reset): one shell call, by the browser's command line, and its word."""
+        table = desktop_live.runs("192.0.2.10")
+        self.assertEqual(table["kill"], [("shell", {"command": desktop_live.KILL_BROWSER})])
+        self.assertIn("[/]usr/lib/chromium/chromium", desktop_live.KILL_BROWSER)
+        self.assertIn("echo killed", desktop_live.KILL_BROWSER)
+
+    def test_the_kill_run_reads_the_dead_browsers_exit_type_before_the_reset_starts_a_new_one(self):
+        """Chromium marks its profile "Crashed" at start and "Normal" at a clean exit, and restores session cookies
+        after a crash: the kill's own shell call reads the mark once the browser is gone, since the run's end reset
+        starts a new browser that writes its own. The parser reads it from the call's content, or says unknown."""
+        self.assertIn("/run/tqa-browser/profile/Default/Preferences", desktop_live.KILL_BROWSER)
+        self.assertLess(desktop_live.KILL_BROWSER.index("echo killed"), desktop_live.KILL_BROWSER.index("exit_type"))
+        self.assertEqual(desktop_kept.exit_type('killed\n"exit_type":"Crashed"\n'), "Crashed")
+        self.assertEqual(desktop_kept.exit_type('killed\n"exit_type":"Normal"'), "Normal")
+        self.assertEqual(desktop_kept.exit_type("killed\nno-exit-type\n"), "unknown")
+
+    def test_the_restart_verdict_needs_the_persistent_cookie_and_only_records_the_session_one(self):
+        """The started-again browser must hold the persistent cookie (the kept sign-in is the profile's); the session
+        cookie may be there or not after a kill (run 6 of 16 Nov 2026 found it back, run 4 and 6b not), so the
+        verdict records it and the exit type in the printed words and never fails on it."""
+        site = "upstream.test"
+        held = (desktop_kept.SESSION, site)
+        self.assertIn("without the session cookie", desktop_kept.restarted([held], site, "Normal"))
+        both = desktop_kept.restarted([held, (desktop_kept.TAB, site)], site, "Crashed")
+        self.assertIn("with the session cookie restored", both)
+        self.assertIn("Crashed", both)
+        with self.assertRaises(AssertionError):
+            desktop_kept.restarted([(desktop_kept.TAB, site)], site, "Crashed")
+        with self.assertRaises(AssertionError):
+            desktop_kept.restarted([], site, "unknown")
+        with self.assertRaises(AssertionError):
+            desktop_kept.restarted([held, ("other", site)], site, "Normal")
+
+    def test_the_kept_ready_phase_reads_the_control_line_the_reset_settles(self):
+        """After the kill run, the driver's Take over must be granted ready (the kept reset started the browser again
+        and said so): the phase waits for the plain control line, never the not-ready one, then hands back."""
+        spec = (desktop_live.ROOT / "web" / "e2e" / "screen-stack.spec.ts").read_text()
+        self.assertIn('PHASE !== "kept-ready"', spec)
+        phase = spec[spec.index('PHASE !== "kept-ready"'):]
+        phase = phase[:phase.index("await result(checked)")]
+        self.assertIn('words("screen.control")', phase)
+        self.assertNotIn("screen.controlNotReady", phase)
+        self.assertIn('"Hand back"', phase)
+
+    def test_the_browser_cookie_probe_takes_several_names(self):
+        self.assertIn("process.argv[1].split(',')", desktop_live.BROWSER_COOKIES)
 
 
 class PageTests(unittest.TestCase):
@@ -204,6 +266,39 @@ class FixtureSiteLoginsTests(unittest.TestCase):
         for served in (1, 2):
             urllib.request.urlopen(base + "/login", timeout=5).read()
             self.assertEqual(logins(), start + served)
+
+    def test_login_sets_a_persistent_and_a_session_cookie_and_whoami_says_which_came(self):
+        """WEB-E2E-125: the persistent cookie decides signed in or out; the session cookie's fate is said after it."""
+        import threading
+        import urllib.request
+        from egress import upstream
+        server = upstream.Server(("127.0.0.1", 0), upstream.Handler)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        self.addCleanup(server.shutdown)
+        base = "http://127.0.0.1:{}".format(server.server_address[1])
+        with urllib.request.urlopen(base + "/login", timeout=5) as response:
+            cookies = response.headers.get_all("Set-Cookie")
+        self.assertEqual(len(cookies), 2, cookies)
+        persistent = next(cookie for cookie in cookies if cookie.startswith(upstream.SESSION + "="))
+        session = next(cookie for cookie in cookies if cookie.startswith(upstream.TAB + "="))
+        self.assertIn("Max-Age=3600", persistent)
+        self.assertNotIn("Max-Age", session)
+        self.assertNotIn("Expires", session)
+
+        def title(cookie_header):
+            request = urllib.request.Request(base + "/whoami", headers={"Cookie": cookie_header} if cookie_header else {})
+            page = urllib.request.urlopen(request, timeout=5).read().decode()
+            return page.split("<title>")[1].split("</title>")[0]
+
+        both = "{}=signed-in; {}=signed-in".format(upstream.SESSION, upstream.TAB)
+        self.assertEqual(title(both), upstream.SIGNED_IN + "; " + upstream.TAB_KEPT)
+        self.assertEqual(title(upstream.SESSION + "=signed-in"), upstream.SIGNED_IN + "; " + upstream.TAB_GONE)
+        self.assertEqual(title(upstream.TAB + "=signed-in"), upstream.SIGNED_OUT + "; " + upstream.TAB_KEPT)
+        self.assertEqual(title(None), upstream.SIGNED_OUT + "; " + upstream.TAB_GONE)
+        # The driver's readers tell the two apart by their own words, neither a part of the other.
+        for a, b in ((upstream.SIGNED_IN, upstream.SIGNED_OUT), (upstream.TAB_KEPT, upstream.TAB_GONE)):
+            self.assertNotIn(a, b)
+            self.assertNotIn(b, a)
 
 
 if __name__ == "__main__":
