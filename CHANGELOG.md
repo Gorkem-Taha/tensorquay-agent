@@ -49,6 +49,10 @@ Each release of TensorQuay Agent, newest first. A fix release changes no capabil
 
 ### Fixed
 
+- **Clear the browser's sign-ins stays offered while a task keeps its sign-in (WEB-U-476).** With the switch on, a run's
+  end keeps the desktop browser's sign-in, but the Screen panel's menu said "The browser is already signed out: each run
+  ends that way" and refused the clear once a run had ended after the Take over. The panel now reads the switch's own
+  notices: a sign-in may remain past a run's end while the task kept it at that end, and the switch turned off ends it.
 - **A desktop browser that died is started again (RT-I-061).** The runtime kept the session's browser once started
   and never looked at it again: after a crash, a kill or an out-of-memory end, the next run sent its keys to no window.
   Each run's start and each reset now see that the browser's process has exited and launch it again, as ADR-0039
