@@ -1,7 +1,7 @@
 # Gate 11: Computer use
 
 **State:** **draft for release 18.0, no verdict yet** (15 Nov 2026). The technical lead writes the Evaluation once the
-third 24 h soak with Desktop tasks in its mix has run (15 to 16 Nov 2026) and its numbers are in this page. Until then
+candidate's 24 h soak with Desktop tasks in its mix has run (16 to 17 Nov 2026) and its numbers are in this page. Until then
 nothing here is a verdict: the criteria, the evidence that decides each, and what the evidence can't say.
 
 Computer use shipped in 17.0 (3 Nov 2026) and is on by default where the install has the Desktop image. Since the
@@ -13,22 +13,22 @@ The record of the v1.0 candidate (build 16y, 20 to 21 Oct 2026), on which every 
 below under "The October 2026 record"; the 18.0 evidence comes first.
 
 ## The criteria and what decides each (18.0)
-The gate's row in TEST-PLAN §17 names the criteria. Each is decided by a named test or run; the third 24 h soak's
-numbers are the lead's to fill, marked `<!-- soak3: … -->`.
+The gate's row in TEST-PLAN §17 names the criteria. Each is decided by a named test or run; the candidate's 24 h soak's
+numbers are the lead's to fill, marked `<!-- soak5: … -->`.
 
 | Criterion (DEV-PLAN Phase 11; TEST-PLAN §17) | Decided by | 18.0 |
 |---|---|---|
-| Every P0 row passes: GW-I-159, GW-I-218, GW-I-223, GW-I-313; GW-U-147, GW-U-150/151, GW-U-203, GW-U-204; RT-I-054…057; SBX-C-020 (Docker; the microVM's refusal), SBX-C-022; SEC-001 in a Desktop sandbox, SEC-005's screen socket, SEC-057…059; TOOL-U-057, TOOL-U-062 | the candidate's integration: the sandbox's and the runtime's Docker lanes (SEC-059's sign-in by hand, RT-I-046/047 live, SBX-C-022, SEC-057/058), the unit and DB runs | <!-- soak3: the candidate's integration summary: sandbox lane N of N, runtime lane N of N, unit, DB --> |
-| Every P1 row passes (the §17 row's list: CORE-U-081…083, the GW-I, GW-U, LLM-U, PROTO-U, RT-I and TOOL-U rows named there, WEB-E2E-067, WEB-E2E-071…074, WEB-U-306, WEB-U-329, WEB-U-377) | the same integration; the Desktop suite on the real stack (`demo.py --suite desktop`: WEB-E2E-071…075, 077, 082); WEB-E2E-067 in the settings suite; `egress.desktop_live`'s tool, record, sign-in and reap cases (RT-I-046/047 live, slice 3's record, SEC-059's stack half, SBX-C-022) | <!-- soak3: Desktop suite N of N; desktop_live cases passed --> |
-| The phase demo: a Desktop task watched, taken over and handed back, on the real model | the technical lead's live session on the candidate (supporting evidence since 21 Oct 2026); on the fake model, WEB-E2E-071/072 and the sign-in case stand in | <!-- soak3: run on 18.0 or not --> |
-| A 24 h soak with Desktop tasks in its mix (open since 21 Oct 2026; closed by SOAK-001 as amended on 13 Nov 2026) | the third 24 h soak, 15 to 16 Nov 2026, `soak_mix.py`'s Desktop lane (a Desktop task that types an address, waits and observes, on the Desktop image under test pinned by ID, then deleted; one at a time beside the slots) and `soak_mix_audit.py` every 5 minutes | see "The third 24 h soak" below |
+| Every P0 row passes: GW-I-159, GW-I-218, GW-I-223, GW-I-313; GW-U-147, GW-U-150/151, GW-U-203, GW-U-204; RT-I-054…057; SBX-C-020 (Docker; the microVM's refusal), SBX-C-022; SEC-001 in a Desktop sandbox, SEC-005's screen socket, SEC-057…059; TOOL-U-057, TOOL-U-062 | the candidate's integration: the sandbox's and the runtime's Docker lanes (SEC-059's sign-in by hand, RT-I-046/047 live, SBX-C-022, SEC-057/058), the unit and DB runs | <!-- soak5: the candidate's integration summary: sandbox lane N of N, runtime lane N of N, unit, DB --> |
+| Every P1 row passes (the §17 row's list: CORE-U-081…083, the GW-I, GW-U, LLM-U, PROTO-U, RT-I and TOOL-U rows named there, WEB-E2E-067, WEB-E2E-071…074, WEB-U-306, WEB-U-329, WEB-U-377) | the same integration; the Desktop suite on the real stack (`demo.py --suite desktop`: WEB-E2E-071…075, 077, 082); WEB-E2E-067 in the settings suite; `egress.desktop_live`'s tool, record, sign-in and reap cases (RT-I-046/047 live, slice 3's record, SEC-059's stack half, SBX-C-022) | <!-- soak5: Desktop suite N of N; desktop_live cases passed --> |
+| The phase demo: a Desktop task watched, taken over and handed back, on the real model | the technical lead's live session on the candidate (supporting evidence since 21 Oct 2026); on the fake model, WEB-E2E-071/072 and the sign-in case stand in | <!-- soak5: run on 18.0 or not --> |
+| A 24 h soak with Desktop tasks in its mix (open since 21 Oct 2026; closed by SOAK-001 as amended on 13 Nov 2026) | the candidate's 24 h soak, 16 to 17 Nov 2026, `soak_mix.py`'s Desktop lane (a Desktop task that types an address, waits and observes, on the Desktop image under test pinned by ID, then deleted; one at a time beside the slots) and `soak_mix_audit.py` every 5 minutes | see "The candidate's 24 h soak" below |
 | The measurement, not pass or fail: the grounding evaluation (`computer-grounding.md`), which decides `pixel_grounding` per route (ADR-0039 §2) | measured on 14 Nov 2026 on a capture of the current Desktop image, after the reader's frame fix (TOOL-U-142) | by ref 200/200, by mark 199/200, by coordinates 41/200 against a bar of 189: `pixel_grounding` stays off on the local route, the same answer as 12 and 15 Oct |
 
 **Other evidence, not criteria** (P2, as in October): WEB-E2E-037, WEB-E2E-075, WEB-E2E-077, WEB-E2E-082; the
 WEB-U rows on the Screen panel; TOOL-U-034's one computer case; the rows added since 17.0 for the Desktop (TOOL-U-138,
 TOOL-U-140, TOOL-U-141, TOOL-U-142, RT-I-058's probe, RT-I-059's keys check), each a fix's own test.
 
-## The third 24 h soak (15 to 16 Nov 2026)
+## The candidate's 24 h soak (16 to 17 Nov 2026)
 The soak's mix (SOAK-001, amended 13 Nov 2026) adds one Desktop task at a time beside the eight slots, on the Desktop
 image under test pinned by ID, outside the slots' fault plan. Each must complete with its screenshots kept within 15
 minutes (or, inside a disk-full fault's window, on the product's own record of a dropped capture) and after its delete
@@ -39,16 +39,21 @@ end (ADR-0039 §10's resources, the gap the October draft named).
 - **Earlier runs with the mix:** the 24 h run of 13 Nov 2026 ended on the harness's own rule (a Desktop task opened 3 ms
   into a disk-full window and kept no pictures; the rule now allows it on the product's record of the dropped capture);
   the 24 h run of 14 Nov 2026 found a product fault outside computer use (GW-I-322). Neither is this gate's evidence.
-- **The third run:** <!-- soak3: dates and hours; candidate commit; the Desktop image's ID -->
-  - Desktop tasks started, completed with pictures, failed: <!-- soak3: started / completed / failed -->
-  - tasks inside a disk-full window and how each ended: <!-- soak3: count and the record -->
-  - faults witnessed beside the lanes: <!-- soak3: counts by kind -->
+  The 24 h run of 15 to 16 Nov 2026 failed at 10 h 09 min on this gate's ground: a Desktop task deleted during an
+  injected engine stall left its sandbox, screenshots and browser profile behind, because a failed teardown was only
+  logged (fixed as GW-I-325, the teardown retried in the background). The run of 16 Nov 2026 on 88fd178d7 was stopped
+  on purpose at 6 h 43 min, with no failure, to start the candidate's run on the fixed browser relaunch (RT-I-061),
+  since the release steps run on the build that ships. None of these is this gate's evidence.
+- **The candidate's run:** <!-- soak5: dates and hours; candidate commit; the Desktop image's ID -->
+  - Desktop tasks started, completed with pictures, failed: <!-- soak5: started / completed / failed -->
+  - tasks inside a disk-full window and how each ended: <!-- soak5: count and the record -->
+  - faults witnessed beside the lanes: <!-- soak5: counts by kind -->
   - the mix's audit at the start, its high water and the end (desktops in use, processes, profile folders, screenshot
-    files): <!-- soak3: the result's mix section -->
-  - gateway RSS on the 12 h lifetime: <!-- soak3: RSS % and projected % -->
-  - open descriptors other than database connections: <!-- soak3: fds % and projected % -->
-  - database connections against the pool (D1 to D4): <!-- soak3: D1 D2 D3 D4 -->
-  - orphan audit after the drain: <!-- soak3: sandboxes, rows, networks, volumes -->
+    files): <!-- soak5: the result's mix section -->
+  - gateway RSS on the 12 h lifetime: <!-- soak5: RSS % and projected % -->
+  - open descriptors other than database connections: <!-- soak5: fds % and projected % -->
+  - database connections against the pool (D1 to D4): <!-- soak5: D1 D2 D3 D4 -->
+  - orphan audit after the drain: <!-- soak5: sandboxes, rows, networks, volumes -->
 - **What it decides:** whether a desktop's processes, its profile and its screenshots are given back task after task
   over 24 hours beside the slots' faults, and whether the gateway's growth stays within M5 with desktops running. It
   says nothing about what a model does on a desktop (the campaign and the live checks do), and runs one scripted
@@ -56,7 +61,7 @@ end (ADR-0039 §10's resources, the gap the October draft named).
 
 ## Closed or recorded since 21 Oct 2026
 - **The soak with Desktop tasks in its mix**, the October draft's open point 1: SOAK-001's Desktop lane and audit
-  (13 Nov 2026), and the third run above.
+  (13 Nov 2026), and the candidate's run above.
 - **The grounding evaluation on a current capture** (open point 2): measured 14 Nov 2026, the same answer (above).
 - **A key sent within a few ms of a click** (open point 3): recorded as a known limit on 14 Nov 2026. **Ctrl+A under
   Take over:** measured on the x11vnc side on 14 Nov 2026 (ctrl with the keysym `a` arrives as ctrl+a; ctrl with the
@@ -428,4 +433,4 @@ also white since 16n (SBX-C-024). A rerun on a 16y capture would measure both; i
 
 
 ## Evaluation (the technical lead)
-*Left to the technical lead, after the third 24 h soak.*
+*Left to the technical lead, after the candidate's 24 h soak.*

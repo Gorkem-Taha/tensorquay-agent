@@ -1,7 +1,7 @@
 # Gate 10: Agent teams
 
 **State:** **draft for release 18.0, no verdict yet** (15 Nov 2026). The technical lead writes the Evaluation once the
-third 24 h soak with agent teams in its mix has run (15 to 16 Nov 2026) and its numbers are in this page. Until then
+candidate's 24 h soak with agent teams in its mix has run (16 to 17 Nov 2026) and its numbers are in this page. Until then
 nothing here is a verdict: the criteria, the evidence that decides each, and what the evidence can't say.
 
 Agent teams shipped in 17.0 (3 Nov 2026) as **experimental and off by default** (`[agent_teams] enabled`, ADR-0034),
@@ -13,15 +13,15 @@ The record of the v1.0 candidate (build 16y, 20 to 21 Oct 2026), on which every 
 below under "The October 2026 record"; the 18.0 evidence comes first.
 
 ## The criteria and what decides each (18.0)
-The gate's row in TEST-PLAN §17 names the criteria. Each is decided by a named test or run; the third 24 h soak's
-numbers are the lead's to fill, marked `<!-- soak3: … -->`.
+The gate's row in TEST-PLAN §17 names the criteria. Each is decided by a named test or run; the candidate's 24 h soak's
+numbers are the lead's to fill, marked `<!-- soak5: … -->`.
 
 | Criterion (DEV-PLAN Phase 10; TEST-PLAN §17) | Decided by | 18.0 |
 |---|---|---|
-| Every P0 row on agent teams passes: CORE-U-078; GW-I-214, GW-I-252; RT-I-039; SEC-037, SEC-038, SEC-046 with its team case; WEB-U-228 | the unit, DB and web unit runs of the 18.0 candidate's integration (`check`, `ignored`, vitest), SEC-046's host-keys stack run | <!-- soak3: the candidate's integration summary, counts of unit, DB and vitest; SEC-046 passed/failed --> |
-| Every P1 row on agent teams passes (the §17 row's list: CORE-U-079/080, E2E-AGENTS-021…030 and 033…035, the GW-I, GW-U, LLM-U, PROTO-U, RT-I, SEC, TK-U, TOOL-U rows named there, WEB-E2E-062, the WEB-U rows) | the same integration; the agents suite on the real stack (`demo.py --suite agents`: E2E-AGENTS-020…035, WEB-E2E-062) | <!-- soak3: agents suite N of N, minutes --> |
-| The phase demo: an agent team end to end on the real model, as E2E-AGENTS-020 scripts it | the technical lead's live session on the candidate (supporting evidence since 21 Oct 2026, the team code having changed after the 16j demo); E2E-AGENTS-020 on the fake model in every integration | <!-- soak3: run on 18.0 or not; the record's helper count, tokens, minutes --> |
-| A 24 h soak with agent teams in its mix (open since 21 Oct 2026; closed by SOAK-001 as amended on 13 Nov 2026) | the third 24 h soak, 15 to 16 Nov 2026, `soak.py --hours 24 --teams-every … --desktops-every …` with `soak_mix.py`'s team lane (a lead and two helpers on their own copies, a report from each, `done`, then the lead deleted with its helpers, one team at a time beside the eight slots) and `soak_mix_audit.py` every 5 minutes | see "The third 24 h soak" below |
+| Every P0 row on agent teams passes: CORE-U-078; GW-I-214, GW-I-252; RT-I-039; SEC-037, SEC-038, SEC-046 with its team case; WEB-U-228 | the unit, DB and web unit runs of the 18.0 candidate's integration (`check`, `ignored`, vitest), SEC-046's host-keys stack run | <!-- soak5: the candidate's integration summary, counts of unit, DB and vitest; SEC-046 passed/failed --> |
+| Every P1 row on agent teams passes (the §17 row's list: CORE-U-079/080, E2E-AGENTS-021…030 and 033…035, the GW-I, GW-U, LLM-U, PROTO-U, RT-I, SEC, TK-U, TOOL-U rows named there, WEB-E2E-062, the WEB-U rows) | the same integration; the agents suite on the real stack (`demo.py --suite agents`: E2E-AGENTS-020…035, WEB-E2E-062) | <!-- soak5: agents suite N of N, minutes --> |
+| The phase demo: an agent team end to end on the real model, as E2E-AGENTS-020 scripts it | the technical lead's live session on the candidate (supporting evidence since 21 Oct 2026, the team code having changed after the 16j demo); E2E-AGENTS-020 on the fake model in every integration | <!-- soak5: run on 18.0 or not; the record's helper count, tokens, minutes --> |
+| A 24 h soak with agent teams in its mix (open since 21 Oct 2026; closed by SOAK-001 as amended on 13 Nov 2026) | the candidate's 24 h soak, 16 to 17 Nov 2026, `soak.py --hours 24 --teams-every … --desktops-every …` with `soak_mix.py`'s team lane (a lead and two helpers on their own copies, a report from each, `done`, then the lead deleted with its helpers, one team at a time beside the eight slots) and `soak_mix_audit.py` every 5 minutes | see "The candidate's 24 h soak" below |
 | The measurement, not pass or fail: a single agent against a team at the same budget (`agent-teams.md` §2, proposal J) | the three nights of 11 to 13 Oct 2026, judged blind on 14 Oct; nothing since changes the model or the team code's cost in a way the evaluation measures | not shown either way: +0.00 points on night 2 (7 tasks, −0.86 to +0.86), −0.73 on night 3 against night 1 (13 tasks, −2.58 to +0.62); teams formed in 4 of 20 attempts; the bars' reading is keep experimental (§3.1), and the Product Owner so decided on 12 Nov 2026 |
 
 **Rows that touch agent teams but stay out** (unchanged since 21 Oct): GW-U-078 and GW-I-219, each a row about
@@ -30,7 +30,7 @@ E2E-AGENTS-031/032 and, written for 17.0's candidate and since, E2E-AGENTS-036�
 helper, Stop team with a question open, the waiting notice behind a person's message, a lead stopped before its
 helper's report), GW-I-319 and WEB-U-423…425 (what a stopped lead's strip says), WEB-E2E-024, WEB-U-230 and WEB-U-327.
 
-## The third 24 h soak (15 to 16 Nov 2026)
+## The candidate's 24 h soak (16 to 17 Nov 2026)
 The soak's mix (SOAK-001, amended 13 Nov 2026) adds one agent team at a time beside the eight slots, with agent teams
 turned on for the run, on a second scripted model of its own, outside the slots' fault plan. Each team must end `done`
 with both helpers reporting and one end note within 15 minutes, and after its delete give back what it held within 5
@@ -41,20 +41,25 @@ growth rule applies to the one 12 h gateway lifetime (hours 12 to 24).
 - **Earlier runs with the mix:** the 24 h run of 13 Nov 2026 ended on the harness's own rule (a Desktop task opened 3 ms
   into a disk-full window; the rule now allows it on the product's own record of the dropped capture, SOAK-001); the
   24 h run of 14 Nov 2026 found a product fault outside agent teams (a message whose environment couldn't start was lost
-  under an engine stall; fixed as GW-I-322). Neither is this gate's evidence; both are why the third run is the one
+  under an engine stall; fixed as GW-I-322). Neither is this gate's evidence; both are why a later run is the one
   that counts.
-- **The third run:** <!-- soak3: dates and hours; candidate commit and images -->
-  - teams started, completed `done`, failed: <!-- soak3: teams started / completed / failed -->
-  - helpers per team, reports per team, end notes: <!-- soak3: 2 / 2 / 1 for every team, or the exceptions -->
+  The 24 h run of 15 to 16 Nov 2026 failed at 10 h 09 min: a Desktop task deleted during an injected engine stall left
+  its sandbox, screenshots and browser profile behind, because a failed teardown was only logged (fixed as GW-I-325,
+  the teardown retried in the background). The run of 16 Nov 2026 on 88fd178d7 was stopped on purpose at 6 h 43 min,
+  with no failure, to start the candidate's run on the fixed browser relaunch (RT-I-061), since the release steps run
+  on the build that ships.
+- **The candidate's run:** <!-- soak5: dates and hours; candidate commit and images -->
+  - teams started, completed `done`, failed: <!-- soak5: teams started / completed / failed -->
+  - helpers per team, reports per team, end notes: <!-- soak5: 2 / 2 / 1 for every team, or the exceptions -->
   - faults witnessed beside the lanes (the slots' plan: gateway kills, database stops, sandbox kills, link cuts,
-    engine stalls, disk fills): <!-- soak3: counts by kind -->
+    engine stalls, disk fills): <!-- soak5: counts by kind -->
   - the mix's audit at the start, its high water and the end (helper sandboxes, copies, team log rows, teams, queued
-    turns, reservations): <!-- soak3: the result's mix section -->
+    turns, reservations): <!-- soak5: the result's mix section -->
   - gateway RSS on the 12 h lifetime (second hour's median against the last hour's; the slope projected to 24 h):
-    <!-- soak3: RSS % and projected % -->
-  - open descriptors other than database connections: <!-- soak3: fds % and projected % -->
-  - database connections against the pool (D1 to D4, with the teams' one listener): <!-- soak3: D1 D2 D3 D4 -->
-  - orphan audit after the drain: <!-- soak3: sandboxes, rows, networks, volumes -->
+    <!-- soak5: RSS % and projected % -->
+  - open descriptors other than database connections: <!-- soak5: fds % and projected % -->
+  - database connections against the pool (D1 to D4, with the teams' one listener): <!-- soak5: D1 D2 D3 D4 -->
+  - orphan audit after the drain: <!-- soak5: sandboxes, rows, networks, volumes -->
 - **What it decides:** whether ADR-0034's resources that build up over time (helpers' sandboxes and copies, the team
   log, wakes, budget reservations) return to zero team after team over 24 hours beside the slots' faults, and whether
   the gateway's growth stays within M5 with teams running. It says nothing about team quality (the evaluation does
@@ -69,7 +74,7 @@ the recommendation stays with the evaluation, which reads keep experimental, and
 
 ## Closed since 21 Oct 2026
 - **The soak with agent teams in its mix**, open at every October soak: SOAK-001's lanes and audit (13 Nov 2026), two
-  runs that ended on other causes, and the third run above.
+  runs that ended on other causes, and the candidate's run above.
 - **The evaluation's result** is decided: keep experimental, the Product Owner's decision of 12 Nov 2026.
 - **17.0's release candidate and after:** E2E-AGENTS-036…039, GW-I-319 and WEB-U-423…425 (a stopped lead's strip,
   the end card's report count, a helper stopped before it started), all P2 evidence; in 18.0, deleting a team's lead
@@ -342,4 +347,4 @@ teams.
 
 
 ## Evaluation (the technical lead)
-*Left to the technical lead, after the third 24 h soak.*
+*Left to the technical lead, after the candidate's 24 h soak.*
