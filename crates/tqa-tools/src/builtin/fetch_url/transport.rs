@@ -2,6 +2,7 @@
 use super::{BODY_BYTES, FetchUrl, HEAD_BYTES, USER_AGENT, io_error, target};
 use crate::ToolError;
 use bytes::Bytes;
+use flate2::read::MultiGzDecoder;
 use http_body_util::{BodyExt, Empty};
 use hyper::{
     Request,
@@ -10,6 +11,7 @@ use hyper::{
     header,
 };
 use hyper_util::rt::TokioIo;
+use std::io::{Cursor, Read};
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio_rustls::{TlsConnector, rustls::pki_types::ServerName};
 use url::{Position, Url};
@@ -147,23 +149,40 @@ async fn receive(response: hyper::Response<Incoming>) -> Result<Response, ToolEr
             response.status().as_u16()
         )));
     }
-    if response
-        .body()
-        .size_hint()
-        .upper()
-        .is_some_and(|bytes| bytes > BODY_BYTES as u64)
+    let headers = response.headers();
+    let encodings: Vec<_> = headers.get_all(header::CONTENT_ENCODING).iter().collect();
+    let gzip = match encodings.as_slice() {
+        [] => false,
+        [encoding] if encoding.as_bytes().eq_ignore_ascii_case(b"identity") => false,
+        [encoding]
+            if encoding.to_str().is_ok_and(|value| {
+                matches!(
+                    value.trim().to_ascii_lowercase().as_str(),
+                    "gzip" | "x-gzip"
+                )
+            }) =>
+        {
+            true
+        }
+        _ => {
+            return Err(ToolError::Unsupported(format!(
+                "unsupported response content encoding: {}",
+                encodings
+                    .iter()
+                    .filter_map(|encoding| encoding.to_str().ok())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )));
+        }
+    };
+    if !gzip
+        && response
+            .body()
+            .size_hint()
+            .upper()
+            .is_some_and(|bytes| bytes > BODY_BYTES as u64)
     {
         return Err(ToolError::OutputTooLarge { max: BODY_BYTES });
-    }
-    let headers = response.headers();
-    if headers
-        .get_all(header::CONTENT_ENCODING)
-        .iter()
-        .any(|value| value != "identity")
-    {
-        return Err(ToolError::Unsupported(
-            "compressed responses are not supported".into(),
-        ));
     }
     let mime = headers
         .get(header::CONTENT_TYPE)
@@ -185,14 +204,27 @@ async fn receive(response: hyper::Response<Incoming>) -> Result<Response, ToolEr
     }
     let mut body = response.into_body();
     let mut bytes = Vec::new();
+    let encoded_limit = BODY_BYTES.saturating_add(HEAD_BYTES);
     while let Some(frame) = body.frame().await {
         let frame = frame.map_err(|_| io_error("response body failed"))?;
         if let Some(data) = frame.data_ref() {
-            if data.len() > BODY_BYTES.saturating_sub(bytes.len()) {
+            let limit = if gzip { encoded_limit } else { BODY_BYTES };
+            if data.len() > limit.saturating_sub(bytes.len()) {
                 return Err(ToolError::OutputTooLarge { max: BODY_BYTES });
             }
             bytes.extend_from_slice(data);
         }
+    }
+    if gzip {
+        let mut decoded = Vec::new();
+        MultiGzDecoder::new(Cursor::new(bytes))
+            .take(BODY_BYTES as u64 + 1)
+            .read_to_end(&mut decoded)
+            .map_err(|_| io_error("invalid gzip response body"))?;
+        if decoded.len() > BODY_BYTES {
+            return Err(ToolError::OutputTooLarge { max: BODY_BYTES });
+        }
+        bytes = decoded;
     }
     Ok(Response::Page(Page { bytes, html }))
 }
